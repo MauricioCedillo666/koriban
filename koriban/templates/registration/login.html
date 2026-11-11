@@ -1,0 +1,42 @@
+{% extends "base.html" %}{% load static %}
+{% block titulo %}Iniciar sesión · Koriban{% endblock %}
+{% block cuerpo %}
+<div class="auth">
+  <aside class="auth-lado">
+    <a href="{% url 'landing' %}" class="logo"><img src="{% static 'img/logo.svg' %}" alt="">Koriban</a>
+    <div>
+      <h2>Cada cliente que llega a tu sitio, en un solo lugar.</h2>
+      <p>Consulta el estatus de tus prospectos, sus cotizaciones, documentos y recordatorios de seguimiento.</p>
+    </div>
+    <p class="small">{{ KORIBAN.eslogan }}</p>
+  </aside>
+  <main class="auth-form">
+    <div class="auth-tarjeta">
+      <h1>Iniciar sesión</h1>
+      <p class="muted">Acceso para el equipo de Koriban.</p>
+      {% if form.non_field_errors %}
+        <div class="mensaje error" style="margin-bottom:16px;animation:none">Usuario o contraseña incorrectos.</div>
+      {% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="campo">
+          <label for="id_username">Usuario</label>
+          <input type="text" name="username" id="id_username" autocomplete="username" autofocus required value="{{ form.username.value|default:'' }}">
+        </div>
+        <div class="campo">
+          <label for="id_password">Contraseña</label>
+          <input type="password" name="password" id="id_password" autocomplete="current-password" required>
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <button class="btn btn-primario btn-bloque" type="submit">Entrar</button>
+      </form>
+      <p style="margin-top:18px"><a href="{% url 'landing' %}" class="muted small">← Volver al sitio</a></p>
+      <div class="demo-usuarios">
+        <strong>Usuarios de prueba (prototipo)</strong><br>
+        Administrador: <code>admin</code> / <code>Koriban2026</code><br>
+        Vendedor: <code>laura</code> / <code>Vendedor2026</code> · <code>carlos</code> / <code>Vendedor2026</code>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

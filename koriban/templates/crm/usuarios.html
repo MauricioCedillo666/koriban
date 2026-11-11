@@ -1,0 +1,60 @@
+{% extends "crm/base_crm.html" %}{% load koriban %}
+{% block titulo_crm %}Usuarios{% endblock %}
+{% block contenido %}
+<div class="encabezado">
+  <div>
+    <h1>Usuarios del equipo</h1>
+    <p>El administrador ve y gestiona todo. El vendedor solo ve a sus clientes asignados y sus tareas.</p>
+  </div>
+  <div class="acciones"><button type="button" class="btn btn-primario btn-chico" data-abrir="nuevo-usuario">+ Nuevo usuario</button></div>
+</div>
+
+<form method="post" id="nuevo-usuario" class="cajon tarjeta{% if form.errors %} abierto{% endif %}" style="max-width:860px">
+  {% csrf_token %}
+  <div class="rejilla-2">
+    {% include "publico/_campo.html" with campo=form.first_name %}
+    {% include "publico/_campo.html" with campo=form.last_name %}
+    {% include "publico/_campo.html" with campo=form.username %}
+    {% include "publico/_campo.html" with campo=form.email %}
+    {% include "publico/_campo.html" with campo=form.rol %}
+    {% include "publico/_campo.html" with campo=form.password %}
+  </div>
+  <button class="btn btn-primario btn-chico" type="submit">Crear usuario</button>
+</form>
+
+<div class="tarjeta" style="padding:6px 10px;overflow-x:auto">
+  <table class="tabla">
+    <thead><tr><th>Usuario</th><th>Rol</th><th class="ocultar-movil">Clientes asignados</th><th class="ocultar-movil">Tareas pendientes</th><th>Estado</th><th></th></tr></thead>
+    <tbody>
+      {% for u in usuarios %}
+      <tr>
+        <td><div class="persona"><span class="avatar">{{ u.username|slice:":2"|upper }}</span><span><strong>{{ u|nombre }}</strong><span>@{{ u.username }}{% if u.email %} · {{ u.email }}{% endif %}</span></span></div></td>
+        <td>
+          {% if u == user %}
+            <span class="pill e-mantenimiento">Administrador</span>
+          {% else %}
+          <form method="post" action="{% url 'crm:usuario_rol' u.pk %}" class="form-en-linea">
+            {% csrf_token %}
+            <select name="rol" onchange="this.form.submit()" style="width:auto;padding:6px 10px;font-size:13px">
+              <option value="vendedor" {% if u.perfil.rol == "vendedor" %}selected{% endif %}>Vendedor</option>
+              <option value="admin" {% if u.perfil.rol == "admin" or u.is_superuser and not u.perfil %}selected{% endif %}>Administrador</option>
+            </select>
+          </form>
+          {% endif %}
+        </td>
+        <td class="ocultar-movil">{{ u.n_prospectos }}</td>
+        <td class="ocultar-movil">{{ u.n_tareas }}</td>
+        <td>{% if u.is_active %}<span class="pill e-cliente">Activo</span>{% else %}<span class="pill p-vencida">Inactivo</span>{% endif %}</td>
+        <td>
+          {% if u != user %}
+          <form method="post" action="{% url 'crm:usuario_activar' u.pk %}" class="form-en-linea">
+            {% csrf_token %}<button class="btn btn-borde btn-mini" type="submit">{% if u.is_active %}Desactivar{% else %}Activar{% endif %}</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

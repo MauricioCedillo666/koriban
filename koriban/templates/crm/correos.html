@@ -1,0 +1,34 @@
+{% extends "crm/base_crm.html" %}
+{% block titulo_crm %}Correos{% endblock %}
+{% block contenido %}
+<div class="encabezado">
+  <div>
+    <h1>Correos enviados</h1>
+    <p>En el prototipo el envío es <strong>simulado</strong>: cada correo se guarda aquí y como archivo en la carpeta <code>correos_simulados</code>.</p>
+  </div>
+</div>
+<div class="bandeja">
+  <section class="tarjeta" style="padding:0;overflow:hidden">
+    {% for c in correos %}
+      <a class="correo-item{% if seleccionado and c.pk == seleccionado.pk %} activo{% endif %}" href="?id={{ c.pk }}">
+        <strong>{{ c.para }}</strong>
+        <span>{{ c.asunto }}</span>
+        <span>{{ c.enviado|date:"d M Y, H:i" }}</span>
+      </a>
+    {% empty %}<p class="vacio-texto" style="padding:16px">Aún no se ha enviado ningún correo.</p>{% endfor %}
+  </section>
+  {% if seleccionado %}
+  <section class="tarjeta">
+    <span class="pill p-hoy">Envío simulado</span>
+    <h2 style="margin-top:12px">{{ seleccionado.asunto }}</h2>
+    <p class="small muted" style="margin:0">Para: {{ seleccionado.para }} · {{ seleccionado.enviado|date:"d M Y, H:i" }}
+      {% if seleccionado.prospecto %} · <a href="{{ seleccionado.prospecto.get_absolute_url }}">Ver cliente</a>{% endif %}</p>
+    <div class="correo-cuerpo">{{ seleccionado.cuerpo }}</div>
+    {% if seleccionado.adjunto %}
+      <div class="doc"><span class="doc-icono">PDF</span><div class="grow"><strong>{{ seleccionado.adjunto.nombre }}</strong><span>Archivo adjunto</span></div>
+        <div class="acciones"><a class="btn btn-borde btn-mini" href="{% url 'crm:documento_ver' seleccionado.adjunto.pk %}" target="_blank">Ver</a></div></div>
+    {% endif %}
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

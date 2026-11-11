@@ -1,0 +1,38 @@
+{% extends "crm/base_crm.html" %}
+{% block titulo_crm %}Documentos{% endblock %}
+{% block contenido %}
+<div class="encabezado">
+  <div>
+    <h1>Documentos</h1>
+    <p>Expedientes en PDF ligados a cada cliente. Las cotizaciones generadas se guardan aquí automáticamente.</p>
+  </div>
+  <div class="acciones"><button type="button" class="btn btn-primario btn-chico" data-abrir="subir">+ Subir documento</button></div>
+</div>
+
+<form method="post" enctype="multipart/form-data" id="subir" class="cajon tarjeta{% if form.errors %} abierto{% endif %}" style="max-width:860px">
+  {% csrf_token %}
+  <div class="rejilla-2">
+    {% include "publico/_campo.html" with campo=form.prospecto %}
+    {% include "publico/_campo.html" with campo=form.tipo %}
+    {% include "publico/_campo.html" with campo=form.nombre %}
+    {% include "publico/_campo.html" with campo=form.archivo %}
+  </div>
+  <button class="btn btn-primario btn-chico" type="submit">Subir PDF</button>
+  <span class="muted small">&nbsp; Solo PDF, máximo 5 MB.</span>
+</form>
+
+<form class="filtros" method="get">
+  <input type="search" name="q" value="{{ f.q }}" placeholder="Buscar por documento o cliente">
+  <select name="tipo" onchange="this.form.submit()">
+    <option value="">Todos los tipos</option>
+    {% for c, n in tipos %}<option value="{{ c }}" {% if f.tipo == c %}selected{% endif %}>{{ n }}</option>{% endfor %}
+  </select>
+  <button class="btn btn-oscuro btn-chico" type="submit">Filtrar</button>
+  {% if f.q or f.tipo %}<a href="{% url 'crm:documentos' %}" class="btn btn-borde btn-chico">Limpiar</a>{% endif %}
+</form>
+
+<section>
+  {% for d in documentos %}{% include "crm/_documento.html" with d=d mostrar_cliente=True %}
+  {% empty %}<p class="vacio-texto">No hay documentos.</p>{% endfor %}
+</section>
+{% endblock %}

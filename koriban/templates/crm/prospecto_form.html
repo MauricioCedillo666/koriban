@@ -1,0 +1,58 @@
+{% extends "crm/base_crm.html" %}
+{% block titulo_crm %}{% if nuevo %}Nuevo prospecto{% else %}Editar {{ prospecto.nombre }}{% endif %}{% endblock %}
+{% block contenido %}
+<div class="encabezado">
+  <div>
+    <h1>{% if nuevo %}Nuevo prospecto{% else %}Editar a {{ prospecto.nombre }}{% endif %}</h1>
+    <p>{% if nuevo %}Captura a un prospecto que llegó por teléfono, recomendación o redes sociales.{% else %}Los cambios quedan registrados en el historial.{% endif %}</p>
+  </div>
+  <div class="acciones"><a href="{% if nuevo %}{% url 'crm:prospectos' %}{% else %}{{ prospecto.get_absolute_url }}{% endif %}" class="btn btn-borde btn-chico">Cancelar</a></div>
+</div>
+<form method="post" class="tarjeta" style="max-width:900px">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<ul class="errorlist">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+  <fieldset class="form-bloque">
+    <legend><b>1</b> Contacto</legend>
+    <div class="rejilla-2">
+      {% include "publico/_campo.html" with campo=form.nombre %}
+      {% include "publico/_campo.html" with campo=form.empresa %}
+      {% include "publico/_campo.html" with campo=form.email %}
+      {% include "publico/_campo.html" with campo=form.telefono %}
+    </div>
+    {% include "publico/_campo.html" with campo=form.alcaldia %}
+  </fieldset>
+  <fieldset class="form-bloque">
+    <legend><b>2</b> Diagnóstico del negocio</legend>
+    <div class="rejilla-2">
+      {% include "publico/_campo.html" with campo=form.giro %}
+      {% include "publico/_campo.html" with campo=form.tamano %}
+    </div>
+    {% include "publico/_campo.html" with campo=form.giro_otro %}
+    <div class="rejilla-2">
+      {% include "publico/_campo.html" with campo=form.usuarios_crm %}
+      {% include "publico/_campo.html" with campo=form.clientes_mes %}
+      {% include "publico/_campo.html" with campo=form.sitio_web %}
+      {% include "publico/_campo.html" with campo=form.usa_crm %}
+      {% include "publico/_campo.html" with campo=form.secciones %}
+      {% include "publico/_campo.html" with campo=form.presupuesto %}
+    </div>
+    {% include "publico/_campo.html" with campo=form.urgencia %}
+    {% include "publico/_campo.html" with campo=form.necesita_whatsapp %}
+  </fieldset>
+  <fieldset class="form-bloque">
+    <legend><b>3</b> Seguimiento</legend>
+    <div class="rejilla-2">
+      {% include "publico/_campo.html" with campo=form.etapa %}
+      {% if form.vendedor %}{% include "publico/_campo.html" with campo=form.vendedor %}{% endif %}
+    </div>
+    {% include "publico/_campo.html" with campo=form.comentarios %}
+    {% if nuevo %}
+      <div class="campo campo-check"><input type="checkbox" name="generar_cotizacion" id="gen" value="1" checked><label for="gen">Generar la cotización en PDF con el diagnóstico</label></div>
+      <div class="campo campo-check"><input type="checkbox" name="enviar_correo" id="env" value="1"><label for="env">Enviarla por correo al prospecto (simulado)</label></div>
+    {% else %}
+      <p class="muted small">Si cambiaste el diagnóstico, genera una nueva cotización desde la ficha del cliente.</p>
+    {% endif %}
+  </fieldset>
+  <button class="btn btn-primario" type="submit">{% if nuevo %}Guardar prospecto{% else %}Guardar cambios{% endif %}</button>
+</form>
+{% endblock %}

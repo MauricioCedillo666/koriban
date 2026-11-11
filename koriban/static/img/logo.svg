@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Koriban">
+  <rect width="64" height="64" rx="14" fill="#10213A"/>
+  <g stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" fill="none">
+    <line x1="20.5" y1="14" x2="20.5" y2="50"/>
+    <line x1="30.7" y1="32" x2="46" y2="14"/>
+    <line x1="30.7" y1="32" x2="46" y2="50"/>
+  </g>
+  <circle cx="30.7" cy="32" r="6.4" fill="#FF5B3A"/>
+</svg>

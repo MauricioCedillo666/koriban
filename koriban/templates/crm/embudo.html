@@ -1,0 +1,34 @@
+{% extends "crm/base_crm.html" %}{% load koriban %}
+{% block titulo_crm %}Embudo{% endblock %}
+{% block contenido %}
+<div class="encabezado">
+  <div>
+    <h1>Embudo de ventas</h1>
+    <p>Arrastra una tarjeta a otra columna para cambiar su etapa. Cada movimiento queda en el historial.</p>
+  </div>
+  <div class="acciones"><a href="{% url 'crm:prospecto_nuevo' %}" class="btn btn-primario btn-chico">+ Nuevo prospecto</a></div>
+</div>
+<div class="kanban">
+  {% for col in columnas %}
+  <section class="columna" data-etapa="{{ col.clave }}">
+    <header>
+      <div><h3>{{ col.nombre }}</h3><small>{{ col.total|moneda_corta }}</small></div>
+      <span class="cuenta">{{ col.items|length }}</span>
+    </header>
+    <div class="tarjetas">
+      {% for p in col.items %}
+      <article class="tarjeta-k" draggable="true" data-id="{{ p.pk }}" data-url="{% url 'crm:prospecto_etapa' p.pk %}">
+        <a href="{{ p.get_absolute_url }}">{{ p.nombre }}</a>
+        <span>{{ p.empresa|default:p.giro_texto }}</span>
+        <div class="pie-k">
+          <span>{{ p.get_paquete_recomendado_display|default:"Sin cotizar" }}</span>
+          <b>{{ p.valor_estimado|moneda_corta }}</b>
+        </div>
+        {% if es_admin %}<span class="small" style="margin-top:4px">👤 {{ p.vendedor|nombre }}</span>{% endif %}
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% load koriban %}<div class="doc">
+  <span class="doc-icono">PDF</span>
+  <div class="grow">
+    <strong>{{ d.nombre }}</strong>
+    <span>{{ d.get_tipo_display }} · {{ d.tamano_kb }} KB · {{ d.creado|date:"d/m/Y" }}{% if mostrar_cliente %} · <a href="{{ d.prospecto.get_absolute_url }}">{{ d.prospecto.nombre }}</a>{% endif %}{% if d.subido_por %} · {{ d.subido_por|nombre }}{% endif %}</span>
+  </div>
+  <div class="acciones">
+    <a class="btn btn-borde btn-mini" href="{% url 'crm:documento_ver' d.pk %}" target="_blank">Ver</a>
+    <a class="btn btn-borde btn-mini" href="{% url 'crm:documento_ver' d.pk %}?descargar=1">Descargar</a>
+    {% if es_admin %}
+    <form method="post" action="{% url 'crm:documento_eliminar' d.pk %}" class="form-en-linea" data-confirmar="¿Eliminar «{{ d.nombre }}»?">
+      {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <button class="btn btn-peligro btn-mini" type="submit">✕</button>
+    </form>
+    {% endif %}
+  </div>
+</div>

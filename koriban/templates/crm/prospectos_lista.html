@@ -1,0 +1,54 @@
+{% extends "crm/base_crm.html" %}{% load koriban %}
+{% block titulo_crm %}Clientes{% endblock %}
+{% block contenido %}
+<div class="encabezado">
+  <div>
+    <h1>Clientes y prospectos</h1>
+    <p>{{ prospectos|length }} resultado{{ prospectos|length|pluralize }}{% if f.q %} para «{{ f.q }}»{% endif %}</p>
+  </div>
+  <div class="acciones"><a href="{% url 'crm:prospecto_nuevo' %}" class="btn btn-primario btn-chico">+ Nuevo prospecto</a></div>
+</div>
+
+<form class="filtros" method="get">
+  <input type="search" name="q" value="{{ f.q }}" placeholder="Nombre, empresa, teléfono o correo">
+  <select name="etapa" onchange="this.form.submit()">
+    <option value="">Todas las etapas</option>
+    <option value="clientes" {% if f.etapa == "clientes" %}selected{% endif %}>— Solo clientes con contrato</option>
+    {% for c, n in etapas %}<option value="{{ c }}" {% if f.etapa == c %}selected{% endif %}>{{ n }}</option>{% endfor %}
+  </select>
+  <select name="giro" onchange="this.form.submit()">
+    <option value="">Todos los giros</option>
+    {% for c, n in giros %}<option value="{{ c }}" {% if f.giro == c %}selected{% endif %}>{{ n }}</option>{% endfor %}
+  </select>
+  {% if es_admin %}
+  <select name="vendedor" onchange="this.form.submit()">
+    <option value="">Todos los responsables</option>
+    <option value="0" {% if f.vendedor == "0" %}selected{% endif %}>Sin asignar</option>
+    {% for v in vendedores %}<option value="{{ v.pk }}" {% if f.vendedor == v.pk|stringformat:"s" %}selected{% endif %}>{{ v|nombre }}</option>{% endfor %}
+  </select>
+  {% endif %}
+  <button class="btn btn-oscuro btn-chico" type="submit">Filtrar</button>
+  {% if f.q or f.etapa or f.giro or f.vendedor %}<a href="{% url 'crm:prospectos' %}" class="btn btn-borde btn-chico">Limpiar</a>{% endif %}
+</form>
+
+<div class="tarjeta" style="padding:6px 10px;overflow-x:auto">
+  <table class="tabla">
+    <thead><tr><th>Cliente</th><th class="ocultar-movil">Giro</th><th>Etapa</th><th class="ocultar-movil">Paquete</th><th class="ocultar-movil">Valor</th>{% if es_admin %}<th class="ocultar-movil">Responsable</th>{% endif %}<th class="ocultar-movil">Alta</th></tr></thead>
+    <tbody>
+      {% for p in prospectos %}
+      <tr>
+        <td><a href="{{ p.get_absolute_url }}" class="persona"><span class="avatar">{{ p.iniciales }}</span><span><strong>{{ p.nombre }}</strong><span>{{ p.empresa|default:"—" }} · {{ p.telefono|default:p.email }}</span></span></a></td>
+        <td class="ocultar-movil">{{ p.giro_texto }}</td>
+        <td><span class="pill {{ p.etapa|clase_etapa }}">{{ p.get_etapa_display }}</span></td>
+        <td class="ocultar-movil">{{ p.get_paquete_recomendado_display|default:"—" }}</td>
+        <td class="ocultar-movil nowrap">{{ p.valor_estimado|moneda_corta }}</td>
+        {% if es_admin %}<td class="ocultar-movil">{{ p.vendedor|nombre }}</td>{% endif %}
+        <td class="ocultar-movil nowrap muted">{{ p.creado|date:"d/m/Y" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="vacio-texto" style="text-align:center;padding:30px">No encontramos clientes con esos filtros.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

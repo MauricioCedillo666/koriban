@@ -1,0 +1,41 @@
+{% extends "crm/base_crm.html" %}
+{% block titulo_crm %}Configuración del cotizador{% endblock %}
+{% block contenido %}
+<div class="encabezado">
+  <div>
+    <h1>Configuración del cotizador</h1>
+    <p>Ajusta los puntos y precios con los que se recomienda el paquete. Los cambios aplican a las cotizaciones nuevas.</p>
+  </div>
+</div>
+<div class="detalle">
+  <form method="post" class="tarjeta">
+    {% csrf_token %}
+    {% for grupo, params in grupos.items %}
+    <div class="config-grupo">
+      <h3>{{ grupo }}</h3>
+      {% for p in params %}
+      <div class="config-fila">
+        <label for="p-{{ p.clave }}">{{ p.nombre }}</label>
+        <input type="number" step="0.01" min="0" id="p-{{ p.clave }}" name="{{ p.clave }}" value="{{ p.valor|floatformat:'-2u' }}">
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+    <button class="btn btn-primario" type="submit">Guardar configuración</button>
+  </form>
+  <aside class="tarjeta">
+    <h2>¿Cómo funciona?</h2>
+    <ol class="small" style="padding-left:18px;color:var(--gris)">
+      <li>Cada respuesta del formulario suma puntos (número de secciones, WhatsApp, clientes al mes, usuarios del CRM, si ya usa CRM y si tiene sitio).</li>
+      <li>Si el total alcanza el umbral, se recomienda el <strong>Profesional</strong>. Si pide WhatsApp o 4 o más secciones, siempre es Profesional.</li>
+      <li>El precio parte del precio base del paquete, sube según los puntos y nunca rebasa el máximo.</li>
+      <li>El mantenimiento mensual se calcula igual, con su propio tope.</li>
+      <li>Se agrega IVA y se calcula el anticipo para el PDF.</li>
+    </ol>
+    <form method="post" data-confirmar="¿Restablecer todos los valores por defecto?">
+      {% csrf_token %}<input type="hidden" name="restablecer" value="1">
+      <button class="btn btn-borde btn-chico" type="submit">Restablecer valores por defecto</button>
+    </form>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,266 @@
+{% extends "base.html" %}{% load static %}
+
+{% block cuerpo %}
+<header class="nav-publica">
+  <div class="contenedor">
+    <a href="{% url 'landing' %}" class="logo"><img src="{% static 'img/logo.svg' %}" alt="">Koriban</a>
+    <nav class="nav-links">
+      <a href="#servicios">Servicios</a>
+      <a href="#proceso">Proceso</a>
+      <a href="#por-que">Por qué Koriban</a>
+      <a href="#paquetes">Paquetes</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <div class="nav-acciones">
+      {% if user.is_authenticated %}
+        <a href="{% url 'crm:dashboard' %}" class="btn btn-borde btn-chico">Ir al CRM</a>
+      {% else %}
+        <a href="{% url 'login' %}" class="btn btn-borde btn-chico">Iniciar sesión</a>
+      {% endif %}
+      <a href="#cotizar" class="btn btn-primario btn-chico">Cotizar gratis</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="contenedor">
+    <div>
+      <span class="etiqueta">Para PYMES de la {{ KORIBAN.zona }}</span>
+      <h1>Tu sitio web y tu CRM, <em>trabajando como uno solo.</em></h1>
+      <p class="lead">Diseñamos tu página, configuramos tu CRM y los conectamos para que cada cliente que llega se registre, reciba seguimiento y no se te escape ninguna venta.</p>
+      <div class="hero-acciones">
+        <a href="#cotizar" class="btn btn-primario">Recibir mi propuesta en minutos</a>
+        <a href="#paquetes" class="btn btn-borde">Ver paquetes</a>
+      </div>
+      <div class="hero-datos">
+        <div><strong>3 min</strong><span>para obtener tu cotización</span></div>
+        <div><strong>Sitio + CRM</strong><span>en un solo proveedor</span></div>
+        <div><strong>Soporte</strong><span>y capacitación incluidos</span></div>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="ventana">
+        <div class="ventana-barra"><i></i><i></i><i></i></div>
+        <div class="ventana-cuerpo">
+          <div class="mini-hero"></div>
+          <div class="mini-linea" style="width:90%"></div>
+          <div class="mini-linea" style="width:76%"></div>
+          <div class="mini-form"><span></span><span></span><b></b></div>
+        </div>
+      </div>
+      <span class="conector"></span>
+      <div class="crm-flotante">
+        <h4>Tu embudo de ventas <small>+3 hoy</small></h4>
+        <div class="crm-col">
+          <div>Nuevos<em class="c"></em><em></em></div>
+          <div>Propuesta<em></em><em></em></div>
+          <div>Clientes<em class="m"></em></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="seccion blanca" id="servicios">
+  <div class="contenedor">
+    <div class="titulo-seccion">
+      <span class="sobre">Servicios</span>
+      <h2>Todo lo que tu negocio necesita para vender en línea</h2>
+      <p>Las agencias te hacen la página; los partners de CRM te venden licencias. Nosotros hacemos ambas cosas y las dejamos funcionando juntas.</p>
+    </div>
+    <div class="rejilla-servicios">
+      <article class="tarjeta-servicio">
+        <div class="icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 14h5"/></svg></div>
+        <h3>Diseño web</h3>
+        <p>Landing pages y sitios de varias secciones, rápidos y adaptados a celular.</p>
+      </article>
+      <article class="tarjeta-servicio">
+        <div class="icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5h18l-7 8v6l-4-2v-4z"/></svg></div>
+        <h3>CRM configurado</h3>
+        <p>Tus etapas de venta, campos y usuarios listos desde el primer día.</p>
+      </article>
+      <article class="tarjeta-servicio">
+        <div class="icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20l1.5-4A8 8 0 1 1 8 18.5z"/><path d="M9 10c.5 2 2 3.5 4 4"/></svg></div>
+        <h3>Integración con WhatsApp</h3>
+        <p>Cada mensaje y cada formulario llegan al CRM para darles seguimiento.</p>
+      </article>
+      <article class="tarjeta-servicio">
+        <div class="icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></div>
+        <h3>Mantenimiento y reportes</h3>
+        <p>Hosting, soporte, ajustes y un reporte mensual de tus resultados.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="seccion" id="giros">
+  <div class="contenedor">
+    <div class="titulo-seccion">
+      <span class="sobre">Giros que atendemos</span>
+      <h2>Soluciones adaptadas a la forma en que vende tu negocio</h2>
+      <p>Cada propuesta incluye módulos pensados para tu giro: agenda de citas, catálogo de propiedades, pedidos por WhatsApp y más.</p>
+    </div>
+    <div class="giros">
+      {% for clave, nombre in giros %}<span class="giro-chip">{{ nombre }}</span>{% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="seccion oscura" id="proceso">
+  <div class="contenedor">
+    <div class="titulo-seccion">
+      <span class="sobre">Proceso</span>
+      <h2>Así trabajamos contigo</h2>
+      <p>Un proceso claro, con entregables en cada etapa y sin sorpresas.</p>
+    </div>
+    <div class="pasos">
+      {% for paso, desc in pasos %}
+      <div class="paso"><b>{{ forloop.counter }}</b><h3>{{ paso }}</h3><p>{{ desc }}</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="seccion blanca" id="por-que">
+  <div class="contenedor">
+    <div class="titulo-seccion">
+      <span class="sobre">Por qué Koriban</span>
+      <h2>Lo mejor de cada opción, sin sus desventajas</h2>
+      <p>Comparamos lo que ofrecen las alternativas más comunes para una PYME.</p>
+    </div>
+    <div class="envoltura-tabla">
+      <table class="tabla-comparativa">
+        <thead>
+          <tr><th>Opción</th><th>Sitio web profesional</th><th>CRM integrado</th><th>Precio para PYME</th><th>Soporte y capacitación</th><th>Sin licencias caras</th></tr>
+        </thead>
+        <tbody>
+          <tr class="destacado"><td>Koriban</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td><td class="si">✓</td></tr>
+          <tr><td>Freelancers</td><td class="si">✓</td><td class="no">✕</td><td class="si">✓</td><td class="no">✕</td><td class="si">✓</td></tr>
+          <tr><td>Agencias web locales</td><td class="si">✓</td><td class="no">✕</td><td class="parcial">◐</td><td class="parcial">◐</td><td class="si">✓</td></tr>
+          <tr><td>Software a la medida</td><td class="si">✓</td><td class="si">✓</td><td class="no">✕</td><td class="si">✓</td><td class="si">✓</td></tr>
+          <tr><td>Partners de CRM comercial</td><td class="parcial">◐</td><td class="si">✓</td><td class="no">✕</td><td class="si">✓</td><td class="no">✕</td></tr>
+          <tr><td>Hacerlo por tu cuenta</td><td class="parcial">◐</td><td class="parcial">◐</td><td class="si">✓</td><td class="no">✕</td><td class="no">✕</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted small">✓ Sí &nbsp; ◐ Parcial o depende del proveedor &nbsp; ✕ No suele incluirlo</p>
+  </div>
+</section>
+
+<section class="seccion" id="paquetes">
+  <div class="contenedor">
+    <div class="titulo-seccion">
+      <span class="sobre">Paquetes</span>
+      <h2>Elige el punto de partida; nosotros lo ajustamos a tu negocio</h2>
+      <p>El precio depende de lo que realmente necesitas. Responde el diagnóstico y recibe tu cotización exacta.</p>
+    </div>
+    <div class="rejilla-paquetes">
+      <article class="paquete">
+        <h3>Básico</h3>
+        <p class="para">Para negocios que quieren empezar a recibir clientes en línea.</p>
+        <ul>{% for i in paquetes.basico.incluye %}<li>{{ i }}</li>{% endfor %}</ul>
+        <p class="precio-oculto">Entrega estimada: {{ paquetes.basico.semanas }}. El precio se incluye en tu cotización personalizada.</p>
+        <a href="#cotizar" class="btn btn-borde btn-bloque">Cotizar</a>
+      </article>
+      <article class="paquete popular">
+        <h3>Profesional</h3>
+        <p class="para">Para negocios con flujo constante de clientes que necesitan seguimiento ordenado.</p>
+        <ul>{% for i in paquetes.profesional.incluye %}<li>{{ i }}</li>{% endfor %}</ul>
+        <p class="precio-oculto">Entrega estimada: {{ paquetes.profesional.semanas }}. El precio se incluye en tu cotización personalizada.</p>
+        <a href="#cotizar" class="btn btn-primario btn-bloque">Cotizar</a>
+      </article>
+      <article class="paquete">
+        <h3>Mantenimiento</h3>
+        <p class="para">Para que tu sitio y tu CRM sigan funcionando y mejorando cada mes.</p>
+        <ul>
+          <li>Hosting y dominio administrados</li>
+          <li>Soporte técnico y ajustes</li>
+          <li>Reportes mensuales de resultados</li>
+          <li>Mejoras continuas</li>
+        </ul>
+        <p class="precio-oculto">Mensualidad opcional, se incluye en tu cotización.</p>
+        <a href="#cotizar" class="btn btn-borde btn-bloque">Cotizar</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="seccion blanca" id="cotizar">
+  <div class="contenedor cotizador">
+    <div class="cotizador-info">
+      <span class="sobre">Diagnóstico gratuito</span>
+      <h2>Recibe tu propuesta en tu correo</h2>
+      <p class="muted">Responde unas preguntas sobre tu negocio. Nuestro sistema identifica el paquete ideal y te envía la cotización en PDF de inmediato.</p>
+      <ol>
+        <li>Cuéntanos sobre tu negocio.</li>
+        <li>Calculamos el paquete y la inversión.</li>
+        <li>Recibes la propuesta en PDF con los siguientes pasos.</li>
+        <li>Un asesor te contacta para resolver dudas.</li>
+      </ol>
+    </div>
+    <form method="post" action="{% url 'landing' %}#cotizar" class="form-tarjeta" novalidate>
+      {% csrf_token %}
+      <fieldset class="form-bloque">
+        <legend><b>1</b> Tus datos</legend>
+        <div class="rejilla-2">
+          {% include "publico/_campo.html" with campo=form.nombre %}
+          {% include "publico/_campo.html" with campo=form.empresa %}
+          {% include "publico/_campo.html" with campo=form.email %}
+          {% include "publico/_campo.html" with campo=form.telefono %}
+        </div>
+        {% include "publico/_campo.html" with campo=form.alcaldia %}
+      </fieldset>
+      <fieldset class="form-bloque">
+        <legend><b>2</b> Tu negocio</legend>
+        <div class="rejilla-2">
+          {% include "publico/_campo.html" with campo=form.giro %}
+          {% include "publico/_campo.html" with campo=form.tamano %}
+        </div>
+        {% include "publico/_campo.html" with campo=form.giro_otro %}
+        <div class="rejilla-2">
+          {% include "publico/_campo.html" with campo=form.usuarios_crm %}
+          {% include "publico/_campo.html" with campo=form.clientes_mes %}
+          {% include "publico/_campo.html" with campo=form.sitio_web %}
+          {% include "publico/_campo.html" with campo=form.usa_crm %}
+        </div>
+      </fieldset>
+      <fieldset class="form-bloque">
+        <legend><b>3</b> Lo que necesitas</legend>
+        <div class="rejilla-2">
+          {% include "publico/_campo.html" with campo=form.secciones %}
+          {% include "publico/_campo.html" with campo=form.presupuesto %}
+        </div>
+        {% include "publico/_campo.html" with campo=form.urgencia %}
+        {% include "publico/_campo.html" with campo=form.necesita_whatsapp %}
+        {% include "publico/_campo.html" with campo=form.comentarios %}
+        {% include "publico/_campo.html" with campo=form.acepta_privacidad %}
+      </fieldset>
+      <button type="submit" class="btn btn-primario btn-bloque">Generar y enviar mi propuesta</button>
+      <p class="muted small" style="text-align:center;margin:10px 0 0">Sin costo y sin compromiso.</p>
+    </form>
+  </div>
+</section>
+
+<section class="seccion oscura" id="contacto">
+  <div class="contenedor">
+    <div class="titulo-seccion">
+      <span class="sobre">Contacto</span>
+      <h2>¿Prefieres platicarlo?</h2>
+      <p>Atendemos negocios en la {{ KORIBAN.zona }}.</p>
+    </div>
+    <div class="contacto-rejilla">
+      <div class="contacto-item"><span>WhatsApp</span><a href="https://wa.me/{{ KORIBAN.whatsapp }}" target="_blank" rel="noopener">{{ KORIBAN.telefono }}</a></div>
+      <div class="contacto-item"><span>Correo</span><a href="mailto:{{ KORIBAN.email }}">{{ KORIBAN.email }}</a></div>
+      <div class="contacto-item"><span>Horario</span><strong>Lun a vie, 9:00 a 18:00</strong></div>
+    </div>
+  </div>
+</section>
+
+<footer class="pie">
+  <div class="contenedor">
+    <span>© Koriban · Soluciones digitales</span>
+    <span>{{ KORIBAN.eslogan }}</span>
+    <a href="{% url 'login' %}">Acceso del equipo</a>
+  </div>
+</footer>
+{% endblock %}

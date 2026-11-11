@@ -1,0 +1,74 @@
+{% extends "crm/base_crm.html" %}{% load koriban %}
+{% block titulo_crm %}Inicio{% endblock %}
+{% block buscador_grande %} grande{% endblock %}
+{% block contenido %}
+<div class="encabezado">
+  <div>
+    <h1>Hola, {{ user.first_name|default:user.username }}</h1>
+    <p>{% if es_admin %}Resumen de todo el equipo.{% else %}Resumen de tus clientes asignados.{% endif %}</p>
+  </div>
+  <div class="acciones">
+    <a href="{% url 'crm:prospecto_nuevo' %}" class="btn btn-primario btn-chico">+ Nuevo prospecto</a>
+    <a href="{% url 'crm:embudo' %}" class="btn btn-borde btn-chico">Ver embudo</a>
+  </div>
+</div>
+
+<div class="metricas">
+  <div class="metrica"><span>Prospectos y clientes</span><strong>{{ total }}</strong><small>{{ nuevos_mes }} nuevo{{ nuevos_mes|pluralize }} este mes</small></div>
+  <div class="metrica"><span>Clientes con contrato</span><strong>{{ n_clientes }}</strong><small>Tasa de conversión: {{ conversion }}%</small></div>
+  <div class="metrica"><span>En negociación</span><strong>{{ en_negociacion|moneda_corta }}</strong><small>Propuestas enviadas y en negociación</small></div>
+  <div class="metrica acento"><span>Proyectos ganados</span><strong>{{ ganado|moneda_corta }}</strong><small>Implementación, antes de IVA</small></div>
+</div>
+
+<div class="dash">
+  <div class="pila">
+    <section class="tarjeta">
+      <h2>Embudo por etapa <a href="{% url 'crm:embudo' %}">Abrir tablero →</a></h2>
+      <div class="barras">
+        {% for e in por_etapa %}
+        <a class="barra{% if e.clave == 'contrato_firmado' or e.clave == 'prototipado' or e.clave == 'implementacion' or e.clave == 'pruebas' or e.clave == 'capacitacion' or e.clave == 'mantenimiento' %} cliente{% endif %}" href="{% url 'crm:prospectos' %}?etapa={{ e.clave }}">
+          <span>{{ e.nombre }}</span><span class="riel"><i style="width:{{ e.pct }}%"></i></span><b>{{ e.n }}</b>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+    <section class="tarjeta">
+      <h2>Prospectos recientes <a href="{% url 'crm:prospectos' %}">Ver todos →</a></h2>
+      <ul class="lista">
+        {% for p in recientes %}
+        <li>
+          <span class="avatar">{{ p.iniciales }}</span>
+          <div class="grow"><a class="titulo" href="{{ p.get_absolute_url }}">{{ p.nombre }}</a><span>{{ p.empresa|default:p.giro_texto }} · {{ p.creado|timesince }}</span></div>
+          <span class="pill {{ p.etapa|clase_etapa }}">{{ p.get_etapa_display }}</span>
+        </li>
+        {% empty %}<li class="vacio-texto">Aún no hay prospectos. Llegarán desde la landing page.</li>{% endfor %}
+      </ul>
+    </section>
+    <section class="tarjeta">
+      <h2>Actividad reciente</h2>
+      <ul class="linea-tiempo">
+        {% for a in actividad %}
+        <li class="t-{{ a.tipo }}"><span class="punto"></span><a href="{{ a.prospecto.get_absolute_url }}"><strong>{{ a.prospecto.nombre }}</strong></a> · {{ a.descripcion }}<small>{{ a.creado|date:"d M Y, H:i" }}{% if a.usuario %} · {{ a.usuario|nombre }}{% endif %}</small></li>
+        {% empty %}<li class="vacio-texto">Sin actividad todavía.</li>{% endfor %}
+      </ul>
+    </section>
+  </div>
+
+  <div class="pila">
+    <section class="tarjeta">
+      <h2>Mis recordatorios <a href="{% url 'crm:tareas' %}">Ver todos →</a></h2>
+      {% for t in tareas_vencidas %}{% include "crm/_tarea.html" with t=t estado="vencida" %}{% endfor %}
+      {% for t in tareas_hoy %}{% include "crm/_tarea.html" with t=t estado="hoy" %}{% endfor %}
+      {% for t in tareas_proximas %}{% include "crm/_tarea.html" with t=t estado="ok" %}{% endfor %}
+      {% if not tareas_vencidas and not tareas_hoy and not tareas_proximas %}<p class="vacio-texto">No tienes recordatorios pendientes. 🎉</p>{% endif %}
+    </section>
+    <section class="tarjeta">
+      <h2>Prospectos por giro</h2>
+      <ul class="lista">
+        {% for g in por_giro %}<li><div class="grow"><strong>{{ g.nombre }}</strong></div><b>{{ g.n }}</b></li>
+        {% empty %}<li class="vacio-texto">Sin datos.</li>{% endfor %}
+      </ul>
+    </section>
+  </div>
+</div>
+{% endblock %}

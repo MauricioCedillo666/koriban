@@ -1,0 +1,42 @@
+{% extends "crm/base_crm.html" %}{% load koriban %}
+{% block titulo_crm %}Tareas{% endblock %}
+{% block contenido %}
+<div class="encabezado">
+  <div>
+    <h1>Tareas y recordatorios</h1>
+    <p>Al marcar una tarea recurrente como hecha, se programa automáticamente la siguiente.</p>
+  </div>
+  <div class="acciones"><button type="button" class="btn btn-primario btn-chico" data-abrir="nueva-tarea">+ Nueva tarea</button></div>
+</div>
+
+<form method="post" id="nueva-tarea" class="cajon tarjeta{% if form.errors %} abierto{% endif %}" style="max-width:860px">
+  {% csrf_token %}
+  {% include "publico/_campo.html" with campo=form.titulo %}
+  <div class="rejilla-2">
+    {% include "publico/_campo.html" with campo=form.prospecto %}
+    {% if form.asignado_a %}{% include "publico/_campo.html" with campo=form.asignado_a %}{% endif %}
+    {% include "publico/_campo.html" with campo=form.vence %}
+    {% include "publico/_campo.html" with campo=form.recurrencia %}
+    {% include "publico/_campo.html" with campo=form.cada_n_dias %}
+    {% include "publico/_campo.html" with campo=form.repetir_hasta %}
+  </div>
+  {% include "publico/_campo.html" with campo=form.descripcion %}
+  <button class="btn btn-primario btn-chico" type="submit">Guardar</button>
+</form>
+
+<div class="filtros">
+  <a class="btn btn-chico {% if ver == 'pendientes' %}btn-oscuro{% else %}btn-borde{% endif %}" href="?ver=pendientes{% if mias %}&mias=1{% endif %}">Pendientes ({{ conteos.pendientes }})</a>
+  <a class="btn btn-chico {% if ver == 'vencidas' %}btn-oscuro{% else %}btn-borde{% endif %}" href="?ver=vencidas{% if mias %}&mias=1{% endif %}">Atrasadas ({{ conteos.vencidas }})</a>
+  <a class="btn btn-chico {% if ver == 'hoy' %}btn-oscuro{% else %}btn-borde{% endif %}" href="?ver=hoy{% if mias %}&mias=1{% endif %}">Hoy ({{ conteos.hoy }})</a>
+  <a class="btn btn-chico {% if ver == 'proximas' %}btn-oscuro{% else %}btn-borde{% endif %}" href="?ver=proximas{% if mias %}&mias=1{% endif %}">Próximas ({{ conteos.proximas }})</a>
+  <a class="btn btn-chico {% if ver == 'completadas' %}btn-oscuro{% else %}btn-borde{% endif %}" href="?ver=completadas{% if mias %}&mias=1{% endif %}">Completadas ({{ conteos.completadas }})</a>
+  {% if es_admin %}
+    <a class="btn btn-chico btn-borde" href="?ver={{ ver }}{% if not mias %}&mias=1{% endif %}">{% if mias %}Ver las de todo el equipo{% else %}Ver solo las mías{% endif %}</a>
+  {% endif %}
+</div>
+
+<section class="tarjeta">
+  {% for t in tareas %}{% include "crm/_tarea.html" with t=t acciones=True detalle=True mostrar_responsable=es_admin %}
+  {% empty %}<p class="vacio-texto">No hay tareas en esta vista.</p>{% endfor %}
+</section>
+{% endblock %}

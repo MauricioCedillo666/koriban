@@ -1,0 +1,34 @@
+{% extends "base.html" %}{% load static %}
+{% block titulo %}Tu propuesta está lista · Koriban{% endblock %}
+{% block cuerpo %}
+<header class="nav-publica">
+  <div class="contenedor">
+    <a href="{% url 'landing' %}" class="logo"><img src="{% static 'img/logo.svg' %}" alt="">Koriban</a>
+    <a href="{% url 'landing' %}" class="btn btn-borde btn-chico">Volver al inicio</a>
+  </div>
+</header>
+<section class="gracias">
+  <div class="contenedor">
+    <div class="gracias-tarjeta">
+      <div class="check-grande"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1FB89A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h1>¡Listo, {{ prospecto.nombre }}! Tu propuesta va en camino.</h1>
+      <p class="muted">Enviamos tu cotización en PDF a <strong>{{ prospecto.email }}</strong> (folio {{ cotizacion.folio }}). Según tu diagnóstico, el paquete ideal para tu negocio es:</p>
+      <div class="cotizacion-caja" style="margin:18px 0">
+        <span class="pill e-negociacion">Recomendado</span>
+        <h2 style="margin:10px 0 4px">Paquete {{ cotizacion.get_paquete_display }}</h2>
+        <p class="muted" style="margin:0">Entrega estimada: {{ cotizacion.detalle.semanas }}. La inversión y el detalle están en tu PDF.</p>
+      </div>
+      <div class="hero-acciones">
+        <a class="btn btn-primario" href="{{ pdf_url }}" target="_blank" rel="noopener">Ver mi propuesta</a>
+        <a class="btn btn-borde" href="{{ pdf_url }}?descargar=1">Descargar PDF</a>
+        <a class="btn btn-menta" href="https://wa.me/{{ KORIBAN.whatsapp }}?text={{ 'Hola, acabo de recibir mi propuesta de Koriban con folio '|urlencode }}{{ cotizacion.folio|urlencode }}" target="_blank" rel="noopener">Hablar por WhatsApp</a>
+      </div>
+      <h3 style="margin-top:34px">Siguientes pasos</h3>
+      <ul class="lista-pasos">
+        {% for paso, desc in pasos %}<li><b>{{ forloop.counter }}</b><div><strong>{{ paso }}</strong><br><span class="muted">{{ desc }}</span></div></li>{% endfor %}
+      </ul>
+      <p class="muted small">Tu propuesta tiene vigencia de {{ cotizacion.vigencia_dias }} días. Un asesor te contactará en las próximas horas hábiles.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

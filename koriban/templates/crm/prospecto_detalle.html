@@ -1,0 +1,177 @@
+{% extends "crm/base_crm.html" %}{% load koriban %}
+{% block titulo_crm %}{{ p.nombre }}{% endblock %}
+{% block contenido %}
+<div class="encabezado">
+  <div class="ficha-encabezado">
+    <span class="avatar">{{ p.iniciales }}</span>
+    <div>
+      <h1>{{ p.nombre }}</h1>
+      <span class="muted">{{ p.empresa|default:"Sin empresa" }} · {{ p.giro_texto }}</span>
+      &nbsp;<span class="pill {{ p.etapa|clase_etapa }}">{{ p.get_etapa_display }}</span>
+      {% if p.es_cliente %}<span class="pill e-cliente">Cliente</span>{% endif %}
+    </div>
+  </div>
+  <div class="acciones">
+    {% if whatsapp_url %}<a href="{{ whatsapp_url }}" target="_blank" rel="noopener" class="btn btn-menta btn-chico" data-whatsapp-log="{% url 'crm:whatsapp_registrar' p.pk %}">Enviar propuesta por WhatsApp</a>{% endif %}
+    <a href="{% url 'crm:prospecto_editar' p.pk %}" class="btn btn-borde btn-chico">Editar</a>
+    {% if es_admin %}
+    <form method="post" action="{% url 'crm:prospecto_eliminar' p.pk %}" class="form-en-linea" data-confirmar="¿Eliminar a {{ p.nombre }} con todos sus documentos? No se puede deshacer.">
+      {% csrf_token %}<button class="btn btn-peligro btn-chico" type="submit">Eliminar</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<section class="tarjeta" style="margin-bottom:20px">
+  <h2>Estatus <span class="muted small" style="font-weight:500">Etapa {{ p.etapa_numero }} de 10 · haz clic en una etapa para moverlo</span></h2>
+  <div class="etapas-progreso">
+    {% for clave, nombre in etapas %}
+    <form method="post" action="{% url 'crm:prospecto_etapa' p.pk %}">
+      {% csrf_token %}<input type="hidden" name="etapa" value="{{ clave }}">
+      <button type="submit" title="{{ nombre }}" class="{% if clave == p.etapa %}actual{% elif forloop.counter < p.etapa_numero %}hecha{% endif %}">{{ nombre }}</button>
+    </form>
+    {% endfor %}
+  </div>
+</section>
+
+<div class="detalle">
+  <section class="tarjeta">
+    <div class="tabs" data-tabs>
+      <button type="button" data-tab="info">Información</button>
+      <button type="button" data-tab="notas">Notas <span>{{ notas|length }}</span></button>
+      <button type="button" data-tab="tareas">Tareas <span>{{ tareas|length }}</span></button>
+      <button type="button" data-tab="documentos">Documentos <span>{{ documentos|length }}</span></button>
+      <button type="button" data-tab="historial">Historial</button>
+    </div>
+
+    <div class="panel" id="panel-info">
+      <dl class="datos">
+        <div><dt>Correo</dt><dd><a href="mailto:{{ p.email }}">{{ p.email }}</a></dd></div>
+        <div><dt>Teléfono / WhatsApp</dt><dd>{{ p.telefono|default:"—" }}</dd></div>
+        <div><dt>Alcaldía o municipio</dt><dd>{{ p.alcaldia|default:"—" }}</dd></div>
+        <div><dt>Origen</dt><dd>{{ p.get_origen_display }} · {{ p.creado|date:"d/m/Y H:i" }}</dd></div>
+        <div><dt>Giro</dt><dd>{{ p.giro_texto }}</dd></div>
+        <div><dt>Tamaño</dt><dd>{{ p.get_tamano_display }}</dd></div>
+        <div><dt>Usuarios/empleados del CRM</dt><dd>{{ p.get_usuarios_crm_display }}</dd></div>
+        <div><dt>Clientes o prospectos al mes</dt><dd>{{ p.get_clientes_mes_display }}</dd></div>
+        <div><dt>Sitio web actual</dt><dd>{{ p.get_sitio_web_display }}</dd></div>
+        <div><dt>Gestión actual de clientes</dt><dd>{{ p.get_usa_crm_display }}</dd></div>
+        <div><dt>Secciones requeridas</dt><dd>{{ p.get_secciones_display }}</dd></div>
+        <div><dt>Integración con WhatsApp</dt><dd>{% if p.necesita_whatsapp %}Sí{% else %}No{% endif %}</dd></div>
+        <div><dt>Presupuesto</dt><dd>{{ p.get_presupuesto_display }}</dd></div>
+        <div><dt>Urgencia</dt><dd>{{ p.get_urgencia_display }}</dd></div>
+        <div><dt>Paquete recomendado</dt><dd>{{ p.get_paquete_recomendado_display|default:"—" }} ({{ p.puntaje }} pts)</dd></div>
+        <div><dt>Responsable</dt><dd>{{ p.vendedor|nombre }}</dd></div>
+      </dl>
+      {% if p.comentarios %}<h3 style="font-size:15px;margin-top:20px">Comentarios del prospecto</h3><p class="nota" style="background:var(--arena);border-color:var(--linea)">{{ p.comentarios }}</p>{% endif %}
+    </div>
+
+    <div class="panel" id="panel-notas">
+      <form method="post" action="{% url 'crm:nota_agregar' p.pk %}" style="margin-bottom:16px">
+        {% csrf_token %}{{ nota_form.texto }}
+        <button class="btn btn-oscuro btn-chico" type="submit" style="margin-top:8px">Guardar nota</button>
+      </form>
+      {% for n in notas %}
+        <div class="nota"><p>{{ n.texto }}</p><small>{{ n.autor|nombre }} · {{ n.creado|date:"d M Y, H:i" }}</small></div>
+      {% empty %}<p class="vacio-texto">Sin notas todavía.</p>{% endfor %}
+    </div>
+
+    <div class="panel" id="panel-tareas">
+      <button type="button" class="btn btn-oscuro btn-chico" data-abrir="nueva-tarea" style="margin-bottom:14px">+ Programar recordatorio</button>
+      <form method="post" action="{% url 'crm:tarea_agregar' p.pk %}" id="nueva-tarea" class="cajon tarjeta" style="background:var(--arena)">
+        {% csrf_token %}
+        {% include "publico/_campo.html" with campo=tarea_form.titulo %}
+        <div class="rejilla-2">
+          {% include "publico/_campo.html" with campo=tarea_form.vence %}
+          {% if tarea_form.asignado_a %}{% include "publico/_campo.html" with campo=tarea_form.asignado_a %}{% endif %}
+          {% include "publico/_campo.html" with campo=tarea_form.recurrencia %}
+          {% include "publico/_campo.html" with campo=tarea_form.cada_n_dias %}
+          {% include "publico/_campo.html" with campo=tarea_form.repetir_hasta %}
+        </div>
+        {% include "publico/_campo.html" with campo=tarea_form.descripcion %}
+        <button class="btn btn-primario btn-chico" type="submit">Guardar recordatorio</button>
+      </form>
+      {% for t in tareas %}{% include "crm/_tarea.html" with t=t acciones=True ocultar_cliente=True detalle=True mostrar_responsable=es_admin %}
+      {% empty %}<p class="vacio-texto">Sin tareas para este cliente.</p>{% endfor %}
+    </div>
+
+    <div class="panel" id="panel-documentos">
+      <form method="post" action="{% url 'crm:documento_subir' p.pk %}" enctype="multipart/form-data" class="tarjeta" style="background:var(--arena);margin-bottom:16px">
+        {% csrf_token %}
+        <div class="rejilla-3">
+          {% include "publico/_campo.html" with campo=doc_form.nombre %}
+          {% include "publico/_campo.html" with campo=doc_form.tipo %}
+          {% include "publico/_campo.html" with campo=doc_form.archivo %}
+        </div>
+        <button class="btn btn-oscuro btn-chico" type="submit">Subir PDF</button>
+        <span class="muted small">&nbsp; Solo PDF, máximo {{ max_mb }} MB.</span>
+      </form>
+      {% for d in documentos %}{% include "crm/_documento.html" with d=d %}
+      {% empty %}<p class="vacio-texto">Sin documentos.</p>{% endfor %}
+    </div>
+
+    <div class="panel" id="panel-historial">
+      <ul class="linea-tiempo">
+        {% for a in actividades %}
+        <li class="t-{{ a.tipo }}"><span class="punto"></span><strong>{{ a.get_tipo_display }}</strong> · {{ a.descripcion }}<small>{{ a.creado|date:"d M Y, H:i" }}{% if a.usuario %} · {{ a.usuario|nombre }}{% else %} · Sistema{% endif %}</small></li>
+        {% empty %}<li class="vacio-texto">Sin movimientos.</li>{% endfor %}
+      </ul>
+    </div>
+  </section>
+
+  <aside class="pila">
+    <section class="tarjeta">
+      <h2>Cotización vigente</h2>
+      {% if cotizacion %}
+      <div class="cotizacion-caja">
+        <span class="muted small">Folio {{ cotizacion.folio }} · {{ cotizacion.creado|date:"d/m/Y" }}</span>
+        <h3 style="margin:6px 0 2px">Paquete {{ cotizacion.get_paquete_display }}</h3>
+        <div class="total">{{ cotizacion.total|moneda }}</div>
+        <div class="fila-precio"><span>Implementación</span><span>{{ cotizacion.precio|moneda }}</span></div>
+        <div class="fila-precio"><span>IVA</span><span>{{ cotizacion.iva|moneda }}</span></div>
+        <div class="fila-precio"><span>Mantenimiento</span><span>{{ cotizacion.mantenimiento|moneda }}/mes</span></div>
+        <div class="fila-precio"><span>Vigencia</span><span>{% if cotizacion.vigente %}hasta {{ cotizacion.vence|date:"d/m/Y" }}{% else %}<b style="color:var(--rojo)">Vencida</b>{% endif %}</span></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">
+        {% if cotizacion.documento %}
+          <a class="btn btn-borde btn-chico" href="{% url 'crm:documento_ver' cotizacion.documento.pk %}" target="_blank">Ver PDF</a>
+          <a class="btn btn-borde btn-chico" href="{% url 'crm:documento_ver' cotizacion.documento.pk %}?descargar=1">Descargar</a>
+        {% endif %}
+        <form method="post" action="{% url 'crm:cotizacion_reenviar' cotizacion.pk %}" class="form-en-linea">{% csrf_token %}<button class="btn btn-borde btn-chico" type="submit">Reenviar por correo</button></form>
+      </div>
+      {% else %}<p class="vacio-texto">Aún no tiene cotización.</p>{% endif %}
+      <form method="post" action="{% url 'crm:cotizacion_generar' p.pk %}" style="margin-top:12px">
+        {% csrf_token %}
+        <div class="campo campo-check" style="margin-bottom:8px"><input type="checkbox" name="enviar" id="enviar" value="1" checked><label for="enviar">Enviar al prospecto por correo</label></div>
+        <button class="btn btn-primario btn-chico btn-bloque" type="submit">Generar nueva cotización</button>
+      </form>
+      {% if cotizaciones|length > 1 %}
+        <p class="muted small" style="margin:12px 0 4px">Historial de cotizaciones</p>
+        <ul class="lista">{% for c in cotizaciones %}<li><div class="grow"><strong>{{ c.folio }}</strong><span>{{ c.get_paquete_display }} · {{ c.creado|date:"d/m/Y" }}</span></div><b class="small">{{ c.total|moneda_corta }}</b></li>{% endfor %}</ul>
+      {% endif %}
+    </section>
+
+    {% if es_admin %}
+    <section class="tarjeta">
+      <h2>Responsable</h2>
+      <form method="post" action="{% url 'crm:prospecto_asignar' p.pk %}" style="display:flex;gap:8px">
+        {% csrf_token %}
+        <select name="vendedor">
+          <option value="">Sin asignar</option>
+          {% for v in vendedores %}<option value="{{ v.pk }}" {% if v.pk == p.vendedor_id %}selected{% endif %}>{{ v|nombre }}</option>{% endfor %}
+        </select>
+        <button class="btn btn-oscuro btn-chico" type="submit">Asignar</button>
+      </form>
+    </section>
+    {% endif %}
+
+    <section class="tarjeta">
+      <h2>Correos enviados <a href="{% url 'crm:correos' %}">Ver bandeja →</a></h2>
+      <ul class="lista">
+        {% for c in correos %}<li><div class="grow"><a class="titulo" href="{% url 'crm:correos' %}?id={{ c.pk }}">{{ c.asunto }}</a><span>{{ c.enviado|date:"d M Y, H:i" }}{% if c.simulado %} · simulado{% endif %}</span></div></li>
+        {% empty %}<li class="vacio-texto">Sin correos.</li>{% endfor %}
+      </ul>
+    </section>
+  </aside>
+</div>
+{% endblock %}
